@@ -28,7 +28,10 @@ Ingresa tus credenciales de AWS cuando se te solicite.
 
 ### 4. Instalar dependencias del proyecto
 ```bash
-# Clonar el repositorio e ir al directorio
+# Clonar el repositorio
+git clone https://github.com/FrancoMuzzio/DFX5-Tech-Interview.git
+
+# Ir al directorio del proyecto
 cd DFX5-Tech-Interview
 
 # Instalar dependencias de Node.js
