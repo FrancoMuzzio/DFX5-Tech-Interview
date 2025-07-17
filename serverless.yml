@@ -1,0 +1,70 @@
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: api-notas
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: python3.12
+  stage: dev
+  region: us-east-2
+  
+  # Permisos IAM para Lambda
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:Query
+        - dynamodb:Scan
+      Resource:
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.tableName}"
+
+  # Variables de entorno
+  environment:
+    DYNAMODB_TABLE: ${self:custom.tableName}
+
+custom:
+  tableName: notas
+  pythonRequirements:
+    dockerizePip: non-linux
+
+plugins:
+  - serverless-python-requirements
+
+functions:
+  createNote:
+    handler: handler.create_note
+    events:
+      - http:
+          path: notas
+          method: post
+          cors: true
+
+  getNote:
+    handler: handler.get_note
+    events:
+      - http:
+          path: notas/{id}
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+resources:
+  Resources:
+    NotasTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
